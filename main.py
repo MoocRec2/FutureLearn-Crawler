@@ -39,4 +39,23 @@ sign_in_btn.click()
 
 check_page_load(By.CLASS_NAME, 1, 'a-heading')
 
+courses_grid = driver.find_element_by_class_name('m-grid-of-cards')
 
+courses_elements = driver.find_elements_by_class_name('m-card')
+
+def get_threads():
+    activity_feed = driver.find_element_by_class_name('m-feed')
+    feed_items = driver.find_elements_by_class_name('m-feed-item__body')
+
+for course_element in courses_elements:
+    course_element.click()
+    check_page_load(By.CLASS_NAME, 1, 'm-run-nav__container')
+    nav_bar = driver.find_element_by_class_name('m-run-nav')
+    nav_bar_elements = nav_bar.find_elements_by_class_name('m-run-nav__item')
+    activity_element = nav_bar_elements[1]
+    activity_element.click()
+
+    check_page_load(By.CLASS_NAME, 1, 'm-feed')
+
+
+    break
