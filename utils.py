@@ -10,8 +10,6 @@ from json import JSONDecodeError
 from db_connector import Thread
 from pprint import pprint
 
-driver = webdriver.Chrome('C:/chromedriver')
-
 
 def check_page_load(by, delay, element_id):
     count = 0
@@ -24,19 +22,3 @@ def check_page_load(by, delay, element_id):
             # print(element_id, 'Page is not yet ready, checking again...')
             pass
         count += 1
-
-
-driver.get('https://www.futurelearn.com/sign-in')
-
-email_input_element = driver.find_element_by_id('email')
-password_input_element = driver.find_element_by_id('password')
-
-email_input_element.send_keys('smrbasil4@gmail.com')
-password_input_element.send_keys('nvidia1024')
-
-sign_in_btn = driver.find_element_by_name('button')
-sign_in_btn.click()
-
-check_page_load(By.CLASS_NAME, 1, 'a-heading')
-
-
