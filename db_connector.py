@@ -66,6 +66,22 @@ class Thread:
             return []
 
 
+class FutureLearnThreads:
+
+    @staticmethod
+    def upsert_threads(threads):
+        try:
+            for thread in threads:
+                database.future_learn_threads.update_one({'id': thread['id']}, {"$set": thread}, upsert=True)
+            return True
+        except ServerSelectionTimeoutError:
+            print('Error Connecting to Database')
+            return False
+        except:
+            print('An Error Occurred')
+            return False
+
+
 class Course:
 
     @staticmethod
