@@ -88,4 +88,11 @@ class Course:
             return courses[0]
         except:
             return None
-            pass
+
+    @staticmethod
+    def get_all_courses():
+        try:
+            courses = database.courses.find()
+            return courses
+        except:
+            return None
