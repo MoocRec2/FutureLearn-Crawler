@@ -114,6 +114,22 @@ class Course:
             return None
 
     @staticmethod
+    def get_all_courses_by_platform(platform_no):
+        try:
+            courses = database.courses.find({'platform': platform_no})
+            return courses
+        except:
+            return None
+
+    @staticmethod
+    def get_all_future_learn_courses():
+        try:
+            courses = database.courses.find({'daysLeft': {'$ne': 'Access expired'}, 'platform': 1})
+            return courses
+        except:
+            return None
+
+    @staticmethod
     def convert_all_courses_to_edx():
         courses = Course.get_all_courses()
         count = 1
