@@ -81,6 +81,16 @@ class FutureLearnThreads:
             print('An Error Occurred')
             return False
 
+    @staticmethod
+    def get_threads_by_course(course_key):
+        try:
+            results = database.future_learn_threads.find({'course_key': course_key})
+            return results
+        except ServerSelectionTimeoutError:
+            print('Error Connecting to Database')
+        except:
+            print('An Error Occurred')
+
 
 class Course:
 
