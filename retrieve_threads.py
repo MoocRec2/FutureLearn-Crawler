@@ -55,17 +55,12 @@ print('Authenticated')
 # Retrieve courses from the database
 courses = Course.get_all_future_learn_courses()
 
-count = 0
-for x in courses:
-    count += 1
-print('Retrieved Courses from the Database (Count = {})'.format(count))
+print('Retrieved Courses from the Database (Count = {})'.format(courses.count()))
 
 # For every course item in the user's profile
 base_url = 'https://www.futurelearn.com'
 for course_record in courses:
     driver.get(base_url + course_record['path'])
-
-    # check_page_load(By.CLASS_NAME, 1, 'm-run-nav__container')
 
     nav_bar = driver.find_element_by_class_name('m-run-nav')
     nav_bar_elements = nav_bar.find_elements_by_class_name('m-run-nav__item')

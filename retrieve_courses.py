@@ -76,6 +76,7 @@ for course in courses:
     course['platform'] = 1
     new_courses.append(course)
 
+print('Saving to Database')
 Course.upsert_courses(new_courses)
 
 driver.quit()
