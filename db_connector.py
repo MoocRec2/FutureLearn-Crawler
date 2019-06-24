@@ -112,3 +112,20 @@ class Course:
             return courses
         except:
             return None
+
+    @staticmethod
+    def convert_all_courses_to_edx():
+        courses = Course.get_all_courses()
+        count = 1
+        new_courses = []
+        for course in courses:
+            if 'platform' in course.keys():
+                pass
+            else:
+                course['platform'] = 0
+                new_courses.append(course)
+            count += 1
+
+        print('Processed', count)
+        Course.upsert_courses(new_courses)
+        print('saving to DB')
