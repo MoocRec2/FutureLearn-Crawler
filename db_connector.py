@@ -1,7 +1,8 @@
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 
-client = MongoClient('mongodb://forum_analyzer:admin123@ds157901.mlab.com:57901/moocrecv2')
+# client = MongoClient('mongodb://forum_analyzer:admin123@ds157901.mlab.com:57901/moocrecv2')
+client = MongoClient('mongodb://localhost:27017/moocrecv2')
 
 database = client.moocrecv2
 
