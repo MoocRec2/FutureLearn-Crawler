@@ -9,6 +9,7 @@ from selenium.common.exceptions import NoSuchElementException
 import json
 from json import JSONDecodeError
 from db_connector import Thread
+from db_connector import Course
 from pprint import pprint
 from selenium.webdriver.chrome.options import Options
 import requests
@@ -56,17 +57,25 @@ courses_grid = driver.find_element_by_class_name('m-grid-of-cards')
 
 courses_elements = driver.find_elements_by_class_name('m-card')
 
-print('Total No. of Added Courses: ', courses_elements.__len__())
+print('No. of Courses in Profile: ', courses_elements.__len__())
 
+print('Retrieving Courses as JSON')
 cookies = driver.get_cookies()
 cookies_dict = {}
 for cookie in cookies:
     cookies_dict[cookie.get('name')] = cookie.get('value')
-print(cookies)
 
 r = requests.get('https://www.futurelearn.com/your-courses?all_courses=true&filter_name=in-progress',
-                 cookies=cookies_dict)
-response = r.text
-print(response)
+                 cookies=cookies_dict, headers={'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest'})
+response = r.json()
+courses = response['cards']
+print('No. of Courses Retrieved =', courses.__len__())
+
+new_courses = []
+for course in courses:
+    course['platform'] = 1
+    new_courses.append(course)
+
+Course.upsert_courses(new_courses)
 
 driver.quit()
