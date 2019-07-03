@@ -18,7 +18,8 @@ options.add_argument('--disable-gpu')
 
 driver = webdriver.Chrome('C:/chromedriver', options=options)
 
-print('Beginning Retrieving Thread Information')
+
+# print('Beginning Retrieving Thread Information')
 
 
 def check_page_load(by, delay, element_id):
@@ -34,6 +35,7 @@ def check_page_load(by, delay, element_id):
         count += 1
 
 
+print('Authenticating')
 driver.get('https://www.futurelearn.com/sign-in')
 
 email_input_element = driver.find_element_by_id('email')
@@ -48,6 +50,7 @@ sign_in_btn.click()
 
 # Check whether the browser is in the 'Your Courses' Page
 check_page_load(By.CLASS_NAME, 1, 'a-heading')
+print('Successfully Authenticated')
 
 courses_grid = driver.find_element_by_class_name('m-grid-of-cards')
 
@@ -86,6 +89,7 @@ for course_element in courses_elements:
     print('Basic Information of ', threads.__len__(), ' threads have been extracted')
 
     # TODO: Navigate back to the YOUR COURSES page
+    # pprint(threads)
     break
 
 driver.quit()
