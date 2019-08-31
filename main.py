@@ -68,11 +68,11 @@ for x in range(courses_elements.__len__()):
 
     courses_elements = driver.find_elements_by_class_name('m-card')
 
-    print('No. of Added Courses: ', courses_elements.__len__())
     course_element = courses_elements[x]
     count += 1
     print('Course No.', count)
     course_link = course_element.find_element_by_tag_name('a')
+    print('Course Link:', course_link.get_attribute('href'))
     course_link.click()
 
     check_page_load(By.CLASS_NAME, 1, 'm-run-nav__container')
@@ -98,7 +98,7 @@ for x in range(courses_elements.__len__()):
         thread_details = {'title': title, 'link': link}
         threads.append(thread_details)
 
-    print('Basic Information of ', threads.__len__(), ' threads have been extracted')
+    print('Information of ', threads.__len__(), ' threads have been extracted')
 
     # TODO: Navigate back to the YOUR COURSES page
     driver.get('https://www.futurelearn.com/your-courses')
