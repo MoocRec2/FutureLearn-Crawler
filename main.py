@@ -15,6 +15,7 @@ from selenium.webdriver.chrome.options import Options
 options = Options()
 options.add_argument('--headless')
 options.add_argument('--disable-gpu')
+options.add_argument('log-level=3')
 
 driver = webdriver.Chrome('C:/chromedriver', options=options)
 
@@ -41,7 +42,8 @@ driver.get('https://www.futurelearn.com/sign-in')
 email_input_element = driver.find_element_by_id('email')
 password_input_element = driver.find_element_by_id('password')
 
-email_input_element.send_keys('smrbasil4@gmail.com')
+# email_input_element.send_keys('smrbasil4@gmail.com')
+email_input_element.send_keys('smrbasil4@hotmail.com')
 password_input_element.send_keys('nvidia1024')
 
 sign_in_btn = driver.find_element_by_name('button')
@@ -59,7 +61,17 @@ courses_elements = driver.find_elements_by_class_name('m-card')
 print('No. of Added Courses: ', courses_elements.__len__())
 
 # For every course item in the user's profile
-for course_element in courses_elements:
+count = 0
+
+for x in range(courses_elements.__len__()):
+    courses_grid = driver.find_element_by_class_name('m-grid-of-cards')
+
+    courses_elements = driver.find_elements_by_class_name('m-card')
+
+    print('No. of Added Courses: ', courses_elements.__len__())
+    course_element = courses_elements[x]
+    count += 1
+    print('Course No.', count)
     course_link = course_element.find_element_by_tag_name('a')
     course_link.click()
 
@@ -89,7 +101,8 @@ for course_element in courses_elements:
     print('Basic Information of ', threads.__len__(), ' threads have been extracted')
 
     # TODO: Navigate back to the YOUR COURSES page
+    driver.get('https://www.futurelearn.com/your-courses')
     # pprint(threads)
-    break
+    # break
 
 driver.quit()

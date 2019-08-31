@@ -17,6 +17,7 @@ from selenium.webdriver.chrome.options import Options
 options = Options()
 options.add_argument('--headless')
 options.add_argument('--disable-gpu')
+options.add_argument('log-level=3')
 
 driver = webdriver.Chrome('C:/chromedriver', options=options)
 
@@ -59,8 +60,10 @@ print('Retrieved Courses from the Database (Count = {})'.format(courses.count())
 
 # For every course item in the user's profile
 base_url = 'https://www.futurelearn.com'
-for course_record in courses:
-    driver.get(base_url + course_record['path'])
+# for course_record in courses:
+for x in range(0, 1):
+    # driver.get(base_url + course_record['path'])
+    driver.get('https://www.futurelearn.com/courses/robotics-and-society/6/todo/53391')
 
     nav_bar = driver.find_element_by_class_name('m-run-nav')
     nav_bar_elements = nav_bar.find_elements_by_class_name('m-run-nav__item')
@@ -70,22 +73,33 @@ for course_record in courses:
     # Check whether the ACTIVITY page has loaded
     check_page_load(By.CLASS_NAME, 1, 'm-feed')
 
-    activity_feed = driver.find_element_by_class_name('m-feed')
-    feed_items = activity_feed.find_elements_by_class_name('m-feed-item__body')
-
-    print('Extracting Thread Information')
     threads = []
-    for feed_item in feed_items:
-        heading = feed_item.find_element_by_class_name('m-feed-item__context-heading')
-        item_link_tag = heading.find_element_by_tag_name('a')
-        link = item_link_tag.get_attribute('href')
-        title = item_link_tag.text
+    while True:
+        activity_feed = driver.find_element_by_class_name('m-feed')
+        feed_items = activity_feed.find_elements_by_class_name('m-feed-item__body')
 
-        link_components = link.split('/')
-        thread_id = link_components[link_components.__len__() - 1]
+        print('Extracting Thread Information')
+        for feed_item in feed_items:
+            heading = feed_item.find_element_by_class_name('m-feed-item__context-heading')
+            item_link_tag = heading.find_element_by_tag_name('a')
+            link = item_link_tag.get_attribute('href')
+            title = item_link_tag.text
 
-        thread_details = {'id': thread_id, 'course_key': course_record['key'], 'title': title, 'link': link}
-        threads.append(thread_details)
+            link_components = link.split('/')
+            thread_id = link_components[link_components.__len__() - 1]
+
+            # thread_details = {'id': thread_id, 'course_key': course_record['key'], 'title': title, 'link': link}
+            thread_details = {'id': thread_id, 'title': title, 'link': link}
+            threads.append(thread_details)
+
+        try:
+            next_btn = driver.find_element_by_class_name('m-pagination__link--next')
+            next_btn.click()
+            check_page_load(By.CLASS_NAME, 1, 'm-feed')
+
+        except NoSuchElementException:
+            print('END OF PAGINATION')
+            break
 
     print('Basic Information of ', threads.__len__(), ' threads have been extracted')
     print('Saving to Database')
