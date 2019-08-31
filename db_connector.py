@@ -147,7 +147,7 @@ class Course:
     @staticmethod
     def get_all_future_learn_courses():
         try:
-            courses = database.courses.find({'daysLeft': {'$ne': 'Access expired'}, 'platform': 1})
+            courses = database.courses.find({'platform': 'FutureLearn'})
             return courses
         except:
             return None

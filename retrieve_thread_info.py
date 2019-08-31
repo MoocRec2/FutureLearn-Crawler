@@ -17,6 +17,7 @@ from selenium.webdriver.chrome.options import Options
 options = Options()
 options.add_argument('--headless')
 options.add_argument('--disable-gpu')
+options.add_argument('log-level=3')
 
 driver = webdriver.Chrome('C:/chromedriver', options=options)
 
@@ -53,23 +54,27 @@ check_page_load(By.CLASS_NAME, 1, 'a-heading')
 print('Authenticated')
 
 # Retrieve courses from the database
-courses = Course.get_all_future_learn_courses()
+courses = list(Course.get_all_future_learn_courses())
 
-print('Retrieved Courses from the Database (Count = {})'.format(courses.count()))
+print('Retrieved Courses from the Database (Count = {})'.format(courses.__len__()))
 
 course_count = 1
 for course in courses:
     course_key = course['key']
+    print('--- Course:', course_key)
 
-    threads = FutureLearnThreads.get_threads_by_course(course_key)
-    print('Retrieved {} Threads'.format(threads.count()))
+    threads = list(FutureLearnThreads.get_threads_by_course(course_key))
+    print('Retrieved {} Threads'.format(threads.__len__()))
 
     thread_count = 1
     for thread in threads:
         print('Analyzing Thread No.:', thread_count)
         driver.get(thread['link'])
-
-        feed_element = driver.find_element_by_class_name('m-feed')
+        try:
+            feed_element = driver.find_element_by_class_name('m-feed')
+        except NoSuchElementException:
+            print('Error: m-feed not found')
+            break
         # feed_element.get_attribute()
         comment_elements = feed_element.find_elements_by_tag_name('li')
         posts = []
@@ -93,6 +98,6 @@ for course in courses:
         print('Updated Thread =', thread['id'])
         thread_count += 1
 
-    break
+    # break
 
 driver.quit()
