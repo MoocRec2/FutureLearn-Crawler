@@ -73,7 +73,7 @@ for course in courses:
         try:
             feed_element = driver.find_element_by_class_name('m-feed')
         except NoSuchElementException:
-            print('Error: m-feed not found')
+            # print('Error: m-feed not found')
             break
         # feed_element.get_attribute()
         comment_elements = feed_element.find_elements_by_tag_name('li')
