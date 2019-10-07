@@ -1,8 +1,21 @@
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
+import json
 
-client = MongoClient('mongodb://forum_analyzer:admin123@ds157901.mlab.com:57901/moocrecv2')
+platform_to_collection_mapping = {
+    'Edx': 'threads',
+    'FutureLearn': 'future_learn_threads',
+    'Coursera': 'coursera_threads'
+}
 
+# with open('./db_credentials.json', 'r') as f:
+#     db_credentials = json.load(f)
+#
+# connection_string = db_credentials['connectionString']
+
+# client = MongoClient('mongodb://api:backendapi1@ds157901.mlab.com:57901/moocrecv2?retryWrites=false')
+client = MongoClient('mongodb://localhost:27017/moocrecv2')
+# client = MongoClient(connection_string)
 database = client.moocrecv2
 
 
@@ -66,6 +79,32 @@ class Thread:
             return []
 
 
+class FutureLearnThreads:
+
+    @staticmethod
+    def upsert_threads(threads):
+        try:
+            for thread in threads:
+                database.future_learn_threads.update_one({'id': thread['id']}, {"$set": thread}, upsert=True)
+            return True
+        except ServerSelectionTimeoutError:
+            print('Error Connecting to Database')
+            return False
+        except:
+            print('An Error Occurred')
+            return False
+
+    @staticmethod
+    def get_threads_by_course(course_key):
+        try:
+            results = database.future_learn_threads.find({'course_key': course_key})
+            return results
+        except ServerSelectionTimeoutError:
+            print('Error Connecting to Database')
+        except:
+            print('An Error Occurred')
+
+
 class Course:
 
     @staticmethod
@@ -96,3 +135,36 @@ class Course:
             return courses
         except:
             return None
+
+    @staticmethod
+    def get_all_courses_by_platform(platform_no):
+        try:
+            courses = database.courses.find({'platform': platform_no})
+            return courses
+        except:
+            return None
+
+    @staticmethod
+    def get_all_future_learn_courses():
+        try:
+            courses = database.courses.find({'platform': 'FutureLearn'})
+            return courses
+        except:
+            return None
+
+    @staticmethod
+    def convert_all_courses_to_edx():
+        courses = Course.get_all_courses()
+        count = 1
+        new_courses = []
+        for course in courses:
+            if 'platform' in course.keys():
+                pass
+            else:
+                course['platform'] = 0
+                new_courses.append(course)
+            count += 1
+
+        print('Processed', count)
+        Course.upsert_courses(new_courses)
+        print('saving to DB')

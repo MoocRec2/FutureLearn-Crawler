@@ -9,6 +9,8 @@ from selenium.common.exceptions import NoSuchElementException
 import json
 from json import JSONDecodeError
 from db_connector import Thread
+from db_connector import Course
+from db_connector import FutureLearnThreads
 from pprint import pprint
 from selenium.webdriver.chrome.options import Options
 
@@ -19,8 +21,7 @@ options.add_argument('log-level=3')
 
 driver = webdriver.Chrome('C:/chromedriver', options=options)
 
-
-# print('Beginning Retrieving Thread Information')
+print('Beginning Authentication')
 
 
 def check_page_load(by, delay, element_id):
@@ -36,14 +37,12 @@ def check_page_load(by, delay, element_id):
         count += 1
 
 
-print('Authenticating')
 driver.get('https://www.futurelearn.com/sign-in')
 
 email_input_element = driver.find_element_by_id('email')
 password_input_element = driver.find_element_by_id('password')
 
-# email_input_element.send_keys('smrbasil4@gmail.com')
-email_input_element.send_keys('smrbasil4@hotmail.com')
+email_input_element.send_keys('smrbasil4@gmail.com')
 password_input_element.send_keys('nvidia1024')
 
 sign_in_btn = driver.find_element_by_name('button')
@@ -52,30 +51,19 @@ sign_in_btn.click()
 
 # Check whether the browser is in the 'Your Courses' Page
 check_page_load(By.CLASS_NAME, 1, 'a-heading')
-print('Successfully Authenticated')
+print('Authenticated')
 
-courses_grid = driver.find_element_by_class_name('m-grid-of-cards')
+# Retrieve courses from the database
+courses = Course.get_all_future_learn_courses()
 
-courses_elements = driver.find_elements_by_class_name('m-card')
-
-print('No. of Added Courses: ', courses_elements.__len__())
+print('Retrieved Courses from the Database (Count = {})'.format(courses.count()))
 
 # For every course item in the user's profile
-count = 0
-
-for x in range(courses_elements.__len__()):
-    courses_grid = driver.find_element_by_class_name('m-grid-of-cards')
-
-    courses_elements = driver.find_elements_by_class_name('m-card')
-
-    course_element = courses_elements[x]
-    count += 1
-    print('Course No.', count)
-    course_link = course_element.find_element_by_tag_name('a')
-    print('Course Link:', course_link.get_attribute('href'))
-    course_link.click()
-
-    check_page_load(By.CLASS_NAME, 1, 'm-run-nav__container')
+base_url = 'https://www.futurelearn.com'
+# for course_record in courses:
+for x in range(0, 1):
+    # driver.get(base_url + course_record['path'])
+    driver.get('https://www.futurelearn.com/courses/robotics-and-society/6/todo/53391')
 
     nav_bar = driver.find_element_by_class_name('m-run-nav')
     nav_bar_elements = nav_bar.find_elements_by_class_name('m-run-nav__item')
@@ -85,24 +73,37 @@ for x in range(courses_elements.__len__()):
     # Check whether the ACTIVITY page has loaded
     check_page_load(By.CLASS_NAME, 1, 'm-feed')
 
-    activity_feed = driver.find_element_by_class_name('m-feed')
-    feed_items = activity_feed.find_elements_by_class_name('m-feed-item__body')
-
     threads = []
-    for feed_item in feed_items:
-        heading = feed_item.find_element_by_class_name('m-feed-item__context-heading')
-        item_link_tag = heading.find_element_by_tag_name('a')
-        link = item_link_tag.get_attribute('href')
-        title = item_link_tag.text
+    while True:
+        activity_feed = driver.find_element_by_class_name('m-feed')
+        feed_items = activity_feed.find_elements_by_class_name('m-feed-item__body')
 
-        thread_details = {'title': title, 'link': link}
-        threads.append(thread_details)
+        print('Extracting Thread Information')
+        for feed_item in feed_items:
+            heading = feed_item.find_element_by_class_name('m-feed-item__context-heading')
+            item_link_tag = heading.find_element_by_tag_name('a')
+            link = item_link_tag.get_attribute('href')
+            title = item_link_tag.text
 
-    print('Information of ', threads.__len__(), ' threads have been extracted')
+            link_components = link.split('/')
+            thread_id = link_components[link_components.__len__() - 1]
 
-    # TODO: Navigate back to the YOUR COURSES page
-    driver.get('https://www.futurelearn.com/your-courses')
-    # pprint(threads)
-    # break
+            # thread_details = {'id': thread_id, 'course_key': course_record['key'], 'title': title, 'link': link}
+            thread_details = {'id': thread_id, 'title': title, 'link': link}
+            threads.append(thread_details)
+
+        try:
+            next_btn = driver.find_element_by_class_name('m-pagination__link--next')
+            next_btn.click()
+            check_page_load(By.CLASS_NAME, 1, 'm-feed')
+
+        except NoSuchElementException:
+            print('END OF PAGINATION')
+            break
+
+    print('Basic Information of ', threads.__len__(), ' threads have been extracted')
+    print('Saving to Database')
+    FutureLearnThreads.upsert_threads(threads)
+    print('Basic Information has been saved to the database')
 
 driver.quit()
