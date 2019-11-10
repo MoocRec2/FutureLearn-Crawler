@@ -39,14 +39,16 @@ def check_page_load(by, delay, element_id):
 print('Authenticating')
 driver.get('https://www.futurelearn.com/sign-in')
 
-email_input_element = driver.find_element_by_id('email')
-password_input_element = driver.find_element_by_id('password')
+# email_input_element = driver.find_element_by_id('email')
+email_input_element = driver.find_element_by_name('email')
+password_input_element = driver.find_element_by_name('password')
 
 # email_input_element.send_keys('smrbasil4@gmail.com')
 email_input_element.send_keys('smrbasil4@hotmail.com')
 password_input_element.send_keys('nvidia1024')
 
-sign_in_btn = driver.find_element_by_name('button')
+# sign_in_btn = driver.find_element_by_name('button')
+sign_in_btn = driver.find_element_by_class_name('button-wrapper_28yrv')
 driver.execute_script('window.scroll(0, 500)')
 sign_in_btn.click()
 
