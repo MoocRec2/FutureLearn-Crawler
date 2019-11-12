@@ -36,7 +36,7 @@ def check_page_load(by, delay, element_id):
         count += 1
 
 
-print('Authenticating')
+print('Authentication: IN PROGRESS')
 driver.get('https://www.futurelearn.com/sign-in')
 
 # email_input_element = driver.find_element_by_id('email')
@@ -54,7 +54,7 @@ sign_in_btn.click()
 
 # Check whether the browser is in the 'Your Courses' Page
 check_page_load(By.CLASS_NAME, 1, 'a-heading')
-print('Successfully Authenticated')
+print('Authentication: FINISHED')
 
 courses_grid = driver.find_element_by_class_name('m-grid-of-cards')
 
@@ -66,16 +66,27 @@ print('No. of Added Courses: ', courses_elements.__len__())
 count = 0
 
 for x in range(courses_elements.__len__()):
-    courses_grid = driver.find_element_by_class_name('m-grid-of-cards')
+    count += 1
+    print('Course No.', count)
+    # courses_grid = driver.find_element_by_class_name('m-grid-of-cards')
 
     courses_elements = driver.find_elements_by_class_name('m-card')
 
-    course_element = courses_elements[x]
-    count += 1
-    print('Course No.', count)
+    try:
+        course_element = courses_elements[x]
+    except IndexError:
+        print('Access to the Course has expired: Renew the Subscription')
+        continue
+
     course_link = course_element.find_element_by_tag_name('a')
     print('Course Link:', course_link.get_attribute('href'))
-    course_link.click()
+    while True:
+        try:
+            course_link.click()
+            break
+        except ElementClickInterceptedException:
+            time.sleep(2)
+            continue
 
     check_page_load(By.CLASS_NAME, 1, 'm-run-nav__container')
 
@@ -87,7 +98,12 @@ for x in range(courses_elements.__len__()):
     # Check whether the ACTIVITY page has loaded
     check_page_load(By.CLASS_NAME, 1, 'm-feed')
 
-    activity_feed = driver.find_element_by_class_name('m-feed')
+    try:
+        activity_feed = driver.find_element_by_class_name('m-feed')
+    except NoSuchElementException:
+        print('NoSuchElementException: m-feed')
+        continue
+
     feed_items = activity_feed.find_elements_by_class_name('m-feed-item__body')
 
     threads = []
